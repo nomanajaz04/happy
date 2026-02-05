@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For Ashna</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* Ensures no scrolling happens when the button moves */
+        html, body { 
+            overflow: hidden; 
+            position: fixed; 
+            width: 100%; 
+            height: 100%;
+        }
+        .teleport { position: fixed !important; z-index: 999; }
+        .animate-heart { animation: heartbeat 1.2s infinite; }
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        body { background: #be123c; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center font-sans select-none m-0 p-0">
+
+    <div id="main-content" class="text-center p-8 w-[85%] max-w-md bg-black/20 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/30">
+        <h1 id="heading" class="text-2xl font-black text-white mb-10 uppercase tracking-tight">
+            Ashna, will you be my Valentine?
+        </h1>
+        
+        <div id="button-container" class="flex flex-row gap-4 justify-center items-center min-h-[70px]">
+            <button id="yesBtn" class="bg-white text-rose-700 px-8 py-3 rounded-xl font-black text-xl shadow-xl active:scale-90 transition-transform">
+                YES
+            </button>
+            
+            <button id="noBtn" class="bg-slate-100 text-black border-2 border-black px-8 py-3 rounded-xl font-black text-xl shadow-lg">
+                No
+            </button>
+        </div>
+        
+        <div class="h-16 mt-8 flex items-center justify-center">
+            <p id="noText" class="text-yellow-300 font-bold italic text-base leading-tight opacity-0 transition-opacity drop-shadow-md"></p>
+        </div>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const noText = document.getElementById('noText');
+        const mainContent = document.getElementById('main-content');
+
+        const phrases = [
+            "mae arham se pyaar karti ho :)",
+            "mera sirf arham ha",
+            "ahmed tum kabhi mere nahi hosakte",
+            "mujhe arham pasand ha",
+            "ahmed tumse shaadi nahi karsakti"
+        ];
+        let phraseIdx = 0;
+
+        const moveButton = (e) => {
+            // Prevent zooming or accidental clicks on mobile
+            if(e) e.preventDefault();
+            
+            noBtn.classList.add('teleport');
+            
+            // Mobile-Safe Boundary Calculation
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+            
+            // We subtract 20px extra to ensure it doesn't touch the screen edges
+            const maxX = window.innerWidth - btnWidth - 20;
+            const maxY = window.innerHeight - btnHeight - 20;
+            
+            const randomX = Math.max(10, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+            
+            noBtn.style.left = `${randomX}px`;
+            noBtn.style.top = `${randomY}px`;
+            
+            noText.style.opacity = "1";
+            noText.innerText = phrases[phraseIdx];
+            phraseIdx = (phraseIdx + 1) % phrases.length;
+        };
+
+        // Desktop Hover
+        noBtn.addEventListener('mouseover', moveButton);
+        
+        // Mobile Touch (The moment she touches it, it moves)
+        noBtn.addEventListener('touchstart', moveButton);
+
+        yesBtn.addEventListener('click', () => {
+            // High-intensity Confetti
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ffffff', '#ff0000', '#ffd700']
+            });
+
+            mainContent.classList.remove('bg-black/20', 'border');
+            mainContent.innerHTML = `
+                <div class="animate-heart px-2">
+                    <h1 class="text-xl font-black text-white mb-6 leading-tight uppercase">
+                        "SIRF AHMED TUMHARE LIYE MENE ARHAM KO DHOKA DIA HA I LOVE YOU AHMED"
+                    </h1>
+                    <div class="relative inline-block">
+                        <img src="https://i.ibb.co/C3GjtYC6/6389f417-6404-4c6e-812e-137a8915152a.jpg" 
+                             class="mx-auto rounded-3xl shadow-2xl w-[240px] border-4 border-white">
+                        <div class="absolute -bottom-4 -right-4 bg-white text-rose-600 p-3 rounded-full text-2xl shadow-lg ring-4 ring-rose-600">❤️</div>
+                    </div>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>
