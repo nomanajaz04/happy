@@ -15,30 +15,35 @@
             margin: 0;
             padding: 0;
             touch-action: none;
+            background: #be123c;
         }
-        .teleport { position: fixed !important; z-index: 999; }
+        /* This makes the movement smooth instead of a jump */
+        .floating { 
+            position: fixed !important; 
+            z-index: 999; 
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1); 
+        }
         .animate-heart { animation: heartbeat 1.2s infinite; }
         @keyframes heartbeat {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
-        body { background: #be123c; }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center font-sans select-none m-0 p-0">
+<body class="flex flex-col items-center justify-center font-sans select-none">
 
     <div id="main-content" class="text-center p-8 w-[85%] max-w-md bg-black/20 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/30 transition-all duration-500">
-        <h1 id="heading" class="text-2xl font-black text-white mb-10 uppercase tracking-tight">
+        <h1 class="text-2xl font-black text-white mb-10 uppercase tracking-tight">
             Ashna, will you be my Valentine?
         </h1>
         
-        <div id="button-container" class="flex flex-row gap-4 justify-center items-center min-h-[70px]">
-            <button id="yesBtn" class="bg-white text-rose-700 px-8 py-3 rounded-xl font-black text-xl shadow-xl active:scale-90 transition-transform">
+        <div class="flex flex-row gap-4 justify-center items-center min-h-[70px]">
+            <button id="yesBtn" class="bg-white text-rose-700 px-8 py-3 rounded-xl font-black text-xl shadow-xl active:scale-95 z-10">
                 YES
             </button>
             
-            <button id="noBtn" class="bg-slate-100 text-black border-2 border-black px-8 py-3 rounded-xl font-black text-xl shadow-lg transition-all duration-75">
+            <button id="noBtn" class="bg-slate-100 text-black border-2 border-black px-8 py-3 rounded-xl font-black text-xl shadow-lg transition-all">
                 No
             </button>
         </div>
@@ -65,39 +70,31 @@
 
         const moveButton = (e) => {
             if(e) e.preventDefault();
-            noBtn.classList.add('teleport');
+            noBtn.classList.add('floating');
 
-            const vW = window.innerWidth;
-            const vH = window.innerHeight;
-            const btnW = noBtn.offsetWidth;
-            const btnH = noBtn.offsetHeight;
+            // Float to a random percentage of the screen
+            // Keeping it between 15% and 75% to stay away from edges
+            const randomX = Math.floor(Math.random() * 60) + 15; 
+            const randomY = Math.floor(Math.random() * 60) + 15;
 
-            // Safe Margins
-            const margin = 40;
-            const maxX = vW - btnW - margin;
-            const maxY = vH - btnH - margin;
-
-            let randomX = Math.floor(Math.random() * (maxX - margin)) + margin;
-            let randomY = Math.floor(Math.random() * (maxY - margin)) + margin;
-
-            // Collision Check: Don't hide behind the center card
-            const rect = mainContent.getBoundingClientRect();
-            if (randomX > rect.left - 20 && randomX < rect.right + 20 &&
-                randomY > rect.top - 20 && randomY < rect.bottom + 20) {
-                // If it hits the box, nudge it to the top or bottom 15% of screen
-                randomY = randomY < vH / 2 ? margin : vH - btnH - margin;
-            }
-
-            noBtn.style.left = `${randomX}px`;
-            noBtn.style.top = `${randomY}px`;
+            noBtn.style.left = randomX + 'vw';
+            noBtn.style.top = randomY + 'vh';
 
             noText.style.opacity = "1";
             noText.innerText = phrases[phraseIdx];
             phraseIdx = (phraseIdx + 1) % phrases.length;
         };
 
-        noBtn.addEventListener('mouseover', moveButton);
-        noBtn.addEventListener('touchstart', moveButton, {passive: false});
+        // Trigger move on touch/hover
+        noBtn.addEventListener('pointerover', moveButton);
+        noBtn.addEventListener('pointerdown', moveButton);
+
+        // EXTRA: Make it float automatically every 2 seconds if she does nothing
+        setInterval(() => {
+            if (noBtn.classList.contains('floating')) {
+                moveButton();
+            }
+        }, 2000);
 
         yesBtn.addEventListener('click', () => {
             confetti({
@@ -120,7 +117,6 @@
                     </div>
                 </div>
             `;
-            // Remove the floating No button if it's still there
             if(noBtn) noBtn.remove();
         });
     </script>
